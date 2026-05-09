@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")"
+env -u ELECTRON_RUN_AS_NODE open -n "./node_modules/electron/dist/Electron.app" --args "$PWD"

@@ -1,0 +1,19 @@
+{
+  "name": "pomodoro-frontmost",
+  "version": "1.0.0",
+  "description": "Always-on-top Pomodoro timer with notes and an owl-like alarm.",
+  "main": "main.js",
+  "scripts": {
+    "start": "env -u ELECTRON_RUN_AS_NODE electron ."
+  },
+  "keywords": [
+    "pomodoro",
+    "timer",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^42.0.1"
+  }
+}

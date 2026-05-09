@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ポモドーロ</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="window-bar">
+        <div class="drag-region" aria-label="ドラッグして移動"></div>
+        <button class="icon-button" id="pinButton" title="最前面の切り替え" aria-label="最前面の切り替え">⌖</button>
+        <button class="icon-button" id="minimizeButton" title="最小化" aria-label="最小化">−</button>
+        <button class="icon-button close" id="closeButton" title="閉じる" aria-label="閉じる">×</button>
+      </header>
+
+      <section class="timer-card" aria-label="ポモドーロタイマー">
+        <div class="title-strip">
+          <input id="timerTitle" class="title-input" maxlength="18" value="ポモドーロ終了まで" aria-label="タイマー名" />
+          <label class="task-field">
+            <span>タスク</span>
+            <input id="taskInput" class="task-input" maxlength="48" placeholder="今やっているタスク名" aria-label="今やっているタスク名" />
+          </label>
+        </div>
+
+        <div class="display-wrap">
+          <div class="time-display" id="timeDisplay" aria-live="polite">25:00</div>
+        </div>
+
+        <div class="settings-row">
+          <label class="time-field">
+            <span>分</span>
+            <input id="minutesInput" type="number" min="0" max="999" value="25" />
+          </label>
+          <label class="time-field">
+            <span>秒</span>
+            <input id="secondsInput" type="number" min="0" max="59" value="0" />
+          </label>
+          <button id="setButton" class="control-button secondary">設定</button>
+        </div>
+
+        <div class="alarm-field">
+          <span>音楽</span>
+          <div class="audio-picker">
+            <div class="audio-name" id="registeredAudioName">未登録: ネコ音声で通知</div>
+            <div class="audio-actions">
+              <button id="selectAudioButton" class="control-button secondary" type="button">音楽を登録</button>
+              <button id="clearAudioButton" class="control-button secondary" type="button">解除</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <button id="startPauseButton" class="control-button primary">開始</button>
+          <button id="resetButton" class="control-button secondary">リセット</button>
+          <button id="alarmButton" class="control-button secondary">音テスト</button>
+          <button id="stopAlarmButton" class="control-button secondary">音停止</button>
+        </div>
+      </section>
+
+      <section class="memo-panel" aria-label="メモ">
+        <div class="memo-header">
+          <span>メモ</span>
+          <span id="statusText">最前面表示中</span>
+        </div>
+        <textarea id="memoInput" spellcheck="false" placeholder="このポモドーロでやることを書く"></textarea>
+      </section>
+    </main>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>
