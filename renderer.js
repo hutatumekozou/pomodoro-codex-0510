@@ -11,11 +11,21 @@ const stopAlarmButton = document.getElementById("stopAlarmButton");
 const selectAudioButton = document.getElementById("selectAudioButton");
 const clearAudioButton = document.getElementById("clearAudioButton");
 const registeredAudioName = document.getElementById("registeredAudioName");
+const browserAudioInput = document.getElementById("browserAudioInput");
+const volumeInput = document.getElementById("volumeInput");
+const volumeValue = document.getElementById("volumeValue");
 const memoInput = document.getElementById("memoInput");
 const statusText = document.getElementById("statusText");
 const pinButton = document.getElementById("pinButton");
 const minimizeButton = document.getElementById("minimizeButton");
 const closeButton = document.getElementById("closeButton");
+const desktopApi = window.pomodoroWindow || null;
+const bundledAudio = {
+  name: "タイマー終了にゃん.mp3",
+  path: "内蔵音源",
+  url: "アラーム音(SUNO作成)/タイマー終了にゃん.mp3",
+  bundled: true
+};
 
 let totalSeconds = 25 * 60;
 let remainingSeconds = totalSeconds;
@@ -27,8 +37,9 @@ let alarmId = "catVoice";
 let melodyTimerId = 0;
 let melodyLooping = false;
 let activeAudioNodes = [];
-let registeredAudio = null;
+let registeredAudio = desktopApi ? null : bundledAudio;
 let registeredAudioPlayer = null;
+let alarmVolume = 1;
 const masterVolume = 2;
 const catAlarmMessage = "タイマー終了のお知らせだにゃ。一旦深呼吸して気持ちをリセットしよう";
 
@@ -49,9 +60,14 @@ function render() {
   timeDisplay.textContent = formatTime(remainingSeconds);
   startPauseButton.textContent = running ? "一時停止" : "開始";
   stopAlarmButton.disabled = !melodyLooping && !registeredAudioPlayer;
-  clearAudioButton.disabled = !registeredAudio;
-  registeredAudioName.textContent = registeredAudio ? registeredAudio.name : "未登録: ネコ音声で通知";
+  clearAudioButton.disabled = !registeredAudio || registeredAudio.bundled;
+  registeredAudioName.textContent = registeredAudio
+    ? `${registeredAudio.bundled ? "内蔵: " : ""}${registeredAudio.name}`
+    : "未登録: ネコ音声で通知";
   registeredAudioName.title = registeredAudio ? registeredAudio.path : "";
+  volumeInput.value = Math.round(alarmVolume * 100);
+  volumeValue.textContent = `${Math.round(alarmVolume * 100)}%`;
+  if (!desktopApi) statusText.textContent = "Web表示";
   document.body.classList.toggle("finished", remainingSeconds <= 0 && !running);
 }
 
@@ -64,6 +80,7 @@ function saveState() {
       memo: memoInput.value,
       alarmId,
       registeredAudio,
+      alarmVolume,
       totalSeconds,
       remainingSeconds,
       running,
@@ -82,7 +99,8 @@ function loadState() {
     taskInput.value = state.taskName || "";
     memoInput.value = state.memo || "";
     alarmId = state.alarmId || "catVoice";
-    registeredAudio = state.registeredAudio?.url ? state.registeredAudio : null;
+    registeredAudio = getLoadableAudio(state.registeredAudio);
+    alarmVolume = Number.isFinite(Number(state.alarmVolume)) ? Math.min(Math.max(Number(state.alarmVolume), 0), 1) : 1;
     totalSeconds = Math.max(1, Number(state.totalSeconds) || 25 * 60);
     running = Boolean(state.running && Number(state.endAt) > Date.now());
     endAt = running ? Number(state.endAt) : 0;
@@ -94,6 +112,13 @@ function loadState() {
   } catch {
     localStorage.removeItem("pomodoroState");
   }
+}
+
+function getLoadableAudio(audio) {
+  if (!audio?.url) return desktopApi ? null : bundledAudio;
+  if (!desktopApi && audio.url.startsWith("file:")) return bundledAudio;
+  if (!desktopApi && audio.sessionOnly) return bundledAudio;
+  return audio;
 }
 
 function setFromInputs() {
@@ -166,7 +191,7 @@ function makeOscillatorTone({
   filter.frequency.setValueAtTime(filterFrequency, start);
 
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(Math.min(volume * masterVolume, 0.86), start + 0.025);
+  gain.gain.exponentialRampToValueAtTime(Math.min(volume * masterVolume * alarmVolume, 0.86), start + 0.025);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
   oscillator.connect(filter);
@@ -197,7 +222,7 @@ function playNoiseBurst(startOffset, duration, volume, filterFrequency) {
   source.buffer = buffer;
   filter.type = "bandpass";
   filter.frequency.setValueAtTime(filterFrequency, start);
-  gain.gain.setValueAtTime(Math.min(volume * masterVolume, 0.86), start);
+  gain.gain.setValueAtTime(Math.min(volume * masterVolume * alarmVolume, 0.86), start);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
   source.connect(filter);
   filter.connect(gain);
@@ -1367,7 +1392,7 @@ function speakCatMessage() {
   utterance.lang = "ja-JP";
   utterance.pitch = 1.65;
   utterance.rate = 1.02;
-  utterance.volume = 1;
+  utterance.volume = alarmVolume;
 
   const voice = chooseJapaneseVoice();
   if (voice) utterance.voice = voice;
@@ -1436,7 +1461,7 @@ function playRegisteredAudio({ loop = true } = {}) {
 
   registeredAudioPlayer = new Audio(registeredAudio.url);
   registeredAudioPlayer.loop = loop;
-  registeredAudioPlayer.volume = 1;
+  registeredAudioPlayer.volume = alarmVolume;
   registeredAudioPlayer.addEventListener("ended", () => {
     registeredAudioPlayer = null;
     render();
@@ -1547,7 +1572,12 @@ alarmButton.addEventListener("click", playAlarm);
 stopAlarmButton.addEventListener("click", stopAlarm);
 
 selectAudioButton.addEventListener("click", async () => {
-  const audioFile = await window.pomodoroWindow.selectAudioFile();
+  if (!desktopApi) {
+    browserAudioInput.click();
+    return;
+  }
+
+  const audioFile = await desktopApi.selectAudioFile();
   if (!audioFile) return;
 
   registeredAudio = audioFile;
@@ -1556,10 +1586,41 @@ selectAudioButton.addEventListener("click", async () => {
   playAlarm({ loop: false });
 });
 
+browserAudioInput.addEventListener("change", () => {
+  const file = browserAudioInput.files?.[0];
+  if (!file) return;
+
+  if (registeredAudio?.sessionOnly) {
+    URL.revokeObjectURL(registeredAudio.url);
+  }
+
+  registeredAudio = {
+    name: file.name,
+    path: "ブラウザで選択した音源",
+    url: URL.createObjectURL(file),
+    sessionOnly: true
+  };
+  alarmId = "registeredAudio";
+  saveState();
+  playAlarm({ loop: false });
+});
+
 clearAudioButton.addEventListener("click", () => {
   stopAlarm();
-  registeredAudio = null;
+  if (registeredAudio?.sessionOnly) {
+    URL.revokeObjectURL(registeredAudio.url);
+  }
+  registeredAudio = desktopApi ? null : bundledAudio;
   alarmId = "catVoice";
+  saveState();
+  render();
+});
+
+volumeInput.addEventListener("input", () => {
+  alarmVolume = clamp(volumeInput.value, 0, 100) / 100;
+  if (registeredAudioPlayer) {
+    registeredAudioPlayer.volume = alarmVolume;
+  }
   saveState();
   render();
 });
@@ -1569,11 +1630,23 @@ timerTitle.addEventListener("input", saveState);
 taskInput.addEventListener("input", saveState);
 
 pinButton.addEventListener("click", async () => {
-  const isTop = await window.pomodoroWindow.toggleTop();
+  if (!desktopApi) {
+    statusText.textContent = "ブラウザ表示";
+    return;
+  }
+  const isTop = await desktopApi.toggleTop();
   statusText.textContent = isTop ? "最前面表示中" : "通常表示";
 });
-minimizeButton.addEventListener("click", () => window.pomodoroWindow.minimize());
-closeButton.addEventListener("click", () => window.pomodoroWindow.close());
+minimizeButton.addEventListener("click", () => {
+  if (desktopApi) desktopApi.minimize();
+});
+closeButton.addEventListener("click", () => {
+  if (desktopApi) {
+    desktopApi.close();
+    return;
+  }
+  window.close();
+});
 
 window.addEventListener("keydown", (event) => {
   if (event.code === "Space" && event.target === document.body) {

@@ -42,11 +42,19 @@
 
         <div class="alarm-field">
           <span>音楽</span>
-          <div class="audio-picker">
-            <div class="audio-name" id="registeredAudioName">未登録: ネコ音声で通知</div>
-            <div class="audio-actions">
-              <button id="selectAudioButton" class="control-button secondary" type="button">音楽を登録</button>
-              <button id="clearAudioButton" class="control-button secondary" type="button">解除</button>
+          <div class="alarm-settings">
+            <div class="audio-picker">
+              <div class="audio-name" id="registeredAudioName">未登録: ネコ音声で通知</div>
+              <div class="audio-actions">
+                <button id="selectAudioButton" class="control-button secondary" type="button">音楽を登録</button>
+                <button id="clearAudioButton" class="control-button secondary" type="button">解除</button>
+              </div>
+              <input id="browserAudioInput" class="visually-hidden" type="file" accept="audio/*" />
+            </div>
+            <div class="volume-field">
+              <span>音量</span>
+              <input id="volumeInput" type="range" min="0" max="100" value="100" aria-label="アラーム音量" />
+              <output id="volumeValue">100%</output>
             </div>
           </div>
         </div>

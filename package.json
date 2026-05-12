@@ -4,6 +4,7 @@
   "description": "Always-on-top Pomodoro timer with notes and an owl-like alarm.",
   "main": "main.js",
   "scripts": {
+    "build": "node scripts/build-vercel.js",
     "start": "env -u ELECTRON_RUN_AS_NODE electron ."
   },
   "keywords": [
