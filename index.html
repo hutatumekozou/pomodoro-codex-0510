@@ -15,64 +15,73 @@
         <button class="icon-button close" id="closeButton" title="閉じる" aria-label="閉じる">×</button>
       </header>
 
-      <section class="timer-card" aria-label="ポモドーロタイマー">
-        <div class="title-strip">
-          <input id="timerTitle" class="title-input" maxlength="18" value="ポモドーロ終了まで" aria-label="タイマー名" />
-          <label class="task-field">
-            <span>タスク</span>
-            <input id="taskInput" class="task-input" maxlength="48" placeholder="今やっているタスク名" aria-label="今やっているタスク名" />
-          </label>
-        </div>
+      <nav class="tab-bar" aria-label="表示切り替え">
+        <button id="timerTabButton" class="tab-button active" type="button" aria-controls="timerPanel" aria-selected="true">タイマー</button>
+        <button id="memoTabButton" class="tab-button" type="button" aria-controls="memoPanel" aria-selected="false">メモ</button>
+      </nav>
 
-        <div class="display-wrap">
-          <div class="time-display" id="timeDisplay" aria-live="polite">25:00</div>
-        </div>
+      <section id="timerPanel" class="tab-panel active" aria-label="タイマー">
+        <div class="timer-card" aria-label="ポモドーロタイマー">
+          <div class="title-strip">
+            <input id="timerTitle" class="title-input" maxlength="18" value="ポモドーロ終了まで" aria-label="タイマー名" />
+            <label class="task-field">
+              <span>タスク</span>
+              <input id="taskInput" class="task-input" maxlength="48" placeholder="今やっているタスク名" aria-label="今やっているタスク名" />
+            </label>
+          </div>
 
-        <div class="settings-row">
-          <label class="time-field">
-            <span>分</span>
-            <input id="minutesInput" type="number" min="0" max="999" value="25" />
-          </label>
-          <label class="time-field">
-            <span>秒</span>
-            <input id="secondsInput" type="number" min="0" max="59" value="0" />
-          </label>
-          <button id="setButton" class="control-button secondary">設定</button>
-        </div>
+          <div class="display-wrap">
+            <div class="time-display" id="timeDisplay" aria-live="polite">25:00</div>
+          </div>
 
-        <div class="alarm-field">
-          <span>音楽</span>
-          <div class="alarm-settings">
-            <div class="audio-picker">
-              <div class="audio-name" id="registeredAudioName">未登録: ネコ音声で通知</div>
-              <div class="audio-actions">
-                <button id="selectAudioButton" class="control-button secondary" type="button">音楽を登録</button>
-                <button id="clearAudioButton" class="control-button secondary" type="button">解除</button>
+          <div class="settings-row">
+            <label class="time-field">
+              <span>分</span>
+              <input id="minutesInput" type="number" min="0" max="999" value="25" />
+            </label>
+            <label class="time-field">
+              <span>秒</span>
+              <input id="secondsInput" type="number" min="0" max="59" value="0" />
+            </label>
+            <button id="setButton" class="control-button secondary">設定</button>
+          </div>
+
+          <div class="alarm-field">
+            <span>音楽</span>
+            <div class="alarm-settings">
+              <div class="audio-picker">
+                <div class="audio-name" id="registeredAudioName">未登録: ネコ音声で通知</div>
+                <div class="audio-actions">
+                  <button id="selectAudioButton" class="control-button secondary" type="button">音楽を登録</button>
+                  <button id="clearAudioButton" class="control-button secondary" type="button">解除</button>
+                </div>
+                <input id="browserAudioInput" class="visually-hidden" type="file" accept="audio/*" />
               </div>
-              <input id="browserAudioInput" class="visually-hidden" type="file" accept="audio/*" />
-            </div>
-            <div class="volume-field">
-              <span>音量</span>
-              <input id="volumeInput" type="range" min="0" max="100" value="100" aria-label="アラーム音量" />
-              <output id="volumeValue">100%</output>
+              <div class="volume-field">
+                <span>音量</span>
+                <input id="volumeInput" type="range" min="0" max="100" value="100" aria-label="アラーム音量" />
+                <output id="volumeValue">100%</output>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="control-row">
-          <button id="startPauseButton" class="control-button primary">開始</button>
-          <button id="resetButton" class="control-button secondary">リセット</button>
-          <button id="alarmButton" class="control-button secondary">音テスト</button>
-          <button id="stopAlarmButton" class="control-button secondary">音停止</button>
+          <div class="control-row">
+            <button id="startPauseButton" class="control-button primary">開始</button>
+            <button id="resetButton" class="control-button secondary">リセット</button>
+            <button id="alarmButton" class="control-button secondary">音テスト</button>
+            <button id="stopAlarmButton" class="control-button secondary">音停止</button>
+          </div>
         </div>
       </section>
 
-      <section class="memo-panel" aria-label="メモ">
-        <div class="memo-header">
-          <span>メモ</span>
-          <span id="statusText">最前面表示中</span>
+      <section id="memoPanel" class="tab-panel" aria-label="メモ" hidden>
+        <div class="memo-panel">
+          <div class="memo-header">
+            <span>メモ</span>
+            <span id="statusText">最前面表示中</span>
+          </div>
+          <textarea id="memoInput" spellcheck="false" placeholder="このポモドーロでやることを書く"></textarea>
         </div>
-        <textarea id="memoInput" spellcheck="false" placeholder="このポモドーロでやることを書く"></textarea>
       </section>
     </main>
 

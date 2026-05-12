@@ -19,6 +19,10 @@ const statusText = document.getElementById("statusText");
 const pinButton = document.getElementById("pinButton");
 const minimizeButton = document.getElementById("minimizeButton");
 const closeButton = document.getElementById("closeButton");
+const timerTabButton = document.getElementById("timerTabButton");
+const memoTabButton = document.getElementById("memoTabButton");
+const timerPanel = document.getElementById("timerPanel");
+const memoPanel = document.getElementById("memoPanel");
 const desktopApi = window.pomodoroWindow || null;
 const bundledAudio = {
   name: "タイマー終了にゃん.mp3",
@@ -40,6 +44,7 @@ let activeAudioNodes = [];
 let registeredAudio = desktopApi ? null : bundledAudio;
 let registeredAudioPlayer = null;
 let alarmVolume = 1;
+let activeTab = "timer";
 const masterVolume = 2;
 const catAlarmMessage = "タイマー終了のお知らせだにゃ。一旦深呼吸して気持ちをリセットしよう";
 
@@ -68,6 +73,12 @@ function render() {
   volumeInput.value = Math.round(alarmVolume * 100);
   volumeValue.textContent = `${Math.round(alarmVolume * 100)}%`;
   if (!desktopApi) statusText.textContent = "Web表示";
+  timerTabButton.classList.toggle("active", activeTab === "timer");
+  memoTabButton.classList.toggle("active", activeTab === "memo");
+  timerTabButton.setAttribute("aria-selected", String(activeTab === "timer"));
+  memoTabButton.setAttribute("aria-selected", String(activeTab === "memo"));
+  timerPanel.hidden = activeTab !== "timer";
+  memoPanel.hidden = activeTab !== "memo";
   document.body.classList.toggle("finished", remainingSeconds <= 0 && !running);
 }
 
@@ -84,7 +95,8 @@ function saveState() {
       totalSeconds,
       remainingSeconds,
       running,
-      endAt
+      endAt,
+      activeTab
     })
   );
 }
@@ -101,6 +113,7 @@ function loadState() {
     alarmId = state.alarmId || "catVoice";
     registeredAudio = getLoadableAudio(state.registeredAudio);
     alarmVolume = Number.isFinite(Number(state.alarmVolume)) ? Math.min(Math.max(Number(state.alarmVolume), 0), 1) : 1;
+    activeTab = state.activeTab === "memo" ? "memo" : "timer";
     totalSeconds = Math.max(1, Number(state.totalSeconds) || 25 * 60);
     running = Boolean(state.running && Number(state.endAt) > Date.now());
     endAt = running ? Number(state.endAt) : 0;
@@ -119,6 +132,12 @@ function getLoadableAudio(audio) {
   if (!desktopApi && audio.url.startsWith("file:")) return bundledAudio;
   if (!desktopApi && audio.sessionOnly) return bundledAudio;
   return audio;
+}
+
+function setActiveTab(nextTab) {
+  activeTab = nextTab === "memo" ? "memo" : "timer";
+  saveState();
+  render();
 }
 
 function setFromInputs() {
@@ -1628,6 +1647,8 @@ volumeInput.addEventListener("input", () => {
 memoInput.addEventListener("input", saveState);
 timerTitle.addEventListener("input", saveState);
 taskInput.addEventListener("input", saveState);
+timerTabButton.addEventListener("click", () => setActiveTab("timer"));
+memoTabButton.addEventListener("click", () => setActiveTab("memo"));
 
 pinButton.addEventListener("click", async () => {
   if (!desktopApi) {

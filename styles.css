@@ -53,7 +53,7 @@ textarea {
   min-height: 100vh;
   padding: 14px;
   display: grid;
-  grid-template-rows: 32px auto minmax(120px, 1fr);
+  grid-template-rows: 32px 38px minmax(0, 1fr);
   gap: 12px;
   background: linear-gradient(180deg, #0b3768, #062544);
   border: 2px solid rgba(78, 164, 255, 0.88);
@@ -94,8 +94,43 @@ textarea {
   background: #9d3434;
 }
 
+.tab-bar {
+  -webkit-app-region: no-drag;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tab-button {
+  min-width: 0;
+  border: 1px solid rgba(121, 184, 255, 0.3);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgba(7, 25, 47, 0.7);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  color: #10151d;
+  border-color: rgba(255, 255, 255, 0.34);
+  background: linear-gradient(180deg, var(--accent-strong), #aaa14a);
+}
+
+.tab-panel {
+  -webkit-app-region: no-drag;
+  min-height: 0;
+  display: grid;
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
 .timer-card {
   -webkit-app-region: no-drag;
+  min-height: 0;
   overflow: hidden;
   border: 2px solid var(--blue-border);
   border-radius: 8px;
@@ -316,6 +351,7 @@ textarea {
 .memo-panel {
   -webkit-app-region: no-drag;
   min-height: 0;
+  height: 100%;
   display: grid;
   grid-template-rows: 28px 1fr;
   gap: 8px;
@@ -394,7 +430,7 @@ textarea::placeholder {
   .shell {
     padding: 10px;
     gap: 8px;
-    grid-template-rows: 30px auto minmax(96px, 1fr);
+    grid-template-rows: 30px 34px minmax(0, 1fr);
   }
 
   .timer-card,
@@ -460,7 +496,7 @@ textarea::placeholder {
   .shell {
     padding: 8px;
     gap: 6px;
-    grid-template-rows: 28px auto minmax(72px, 1fr);
+    grid-template-rows: 28px 32px minmax(0, 1fr);
   }
 
   .window-bar {
@@ -560,7 +596,7 @@ textarea::placeholder {
 
   .shell {
     min-height: 100vh;
-    grid-template-rows: 28px auto auto;
+    grid-template-rows: 28px 30px auto;
     gap: 5px;
     padding-bottom: 12px;
   }
@@ -615,7 +651,7 @@ textarea::placeholder {
     padding: 6px;
     padding-bottom: 12px;
     gap: 4px;
-    grid-template-rows: 24px auto auto;
+    grid-template-rows: 24px 28px auto;
   }
 
   .window-bar {
